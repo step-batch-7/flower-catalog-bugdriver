@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>flower Catalog</title>
+    <link rel="stylesheet" href="./css/style.css" />
+    <script src="./scripts/index.js"></script>
+  </head>
+  <body onload="main()">
+    <h1 class="headingGuestBook"><a href="/">&lt;&lt;</a>Guest Book</h1>
+    <div class="commentBox">
+      <h1>Leave a comment</h1>
+      <form method="POST" action="/guestBookPost">
+        <span>Name : <input type="text" name="name"/></span><br />
+        <span>Comment : <textarea name="comment" rows="3"></textarea></span
+        ><br />
+        <input type="submit" />
+      </form>
+    </div>
+    <hr />
+    <table class="commentTable">
+      <thead>
+        <tr>
+          <th>DATETIME</th>
+          <th>NAME</th>
+          <th>COMMENT_LIST</th>
+        </tr>
+      </thead>
+      <tbody>
+        __tbody__
+      </tbody>
+    </table>
+  </body>
+</html>

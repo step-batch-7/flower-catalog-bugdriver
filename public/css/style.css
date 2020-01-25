@@ -1,7 +1,3 @@
-/* body {
-  margin: 0 10% 0 10%;
-} */
-
 .heading {
   color: rgb(245, 165, 51);
   text-align: right;
@@ -28,4 +24,16 @@
 
 .flowerDescriptionBox {
   padding-left: 4px;
+}
+
+.headingGuestBook {
+  margin-right: 200px;
+  color: rgb(245, 165, 51);
+  text-align: right;
+}
+
+.commentTable {
+  border: 1px solid black;
+  width: 60%;
+  text-align: left;
 }
