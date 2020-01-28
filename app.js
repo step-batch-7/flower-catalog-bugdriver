@@ -1,6 +1,6 @@
 const { writeFileSync, readFileSync, existsSync, statSync } = require('fs');
-const { Response } = require('./response');
-const CONTENT_TYPES = require('./contentTypes.json');
+const { Response } = require('./lib/response');
+const CONTENT_TYPES = require('./lib/contentTypes.json');
 
 const fillTemplate = function(fileName, replaceTokens) {
   const path = `./templates/${fileName}`;
@@ -39,11 +39,11 @@ const getFileDataResponse = function(req) {
 };
 
 const handleGuestBookGet = function(req) {
-  const commentDetails = require('../public/data/commentsData.json');
+  const commentDetails = require('./public/data/commentsData.json');
   const commentList = commentDetails.map(commentDetail => {
     const dateTime = commentDetail.dateTime;
     const name = commentDetail.name;
-    const comment = commentDetail.comment;
+    const comment = commentDetail.comment.replace(/\r\n/g, '</br>');
     return fillTemplate('/tbodyComment.html', {
       dateTime,
       name,
@@ -61,18 +61,10 @@ const handleGuestBookGet = function(req) {
 };
 
 const handleGuestBookPost = function(req) {
-  const commentDetails = require('../public/data/commentsData.json');
+  const commentDetails = require('./public/data/commentsData.json');
   const { name, comment } = req.body;
-  const formatedName = name.replace(/\+/g, ' ').replace(/%0D%0A/g, '</br>');
-  const formatedComment = comment
-    .replace(/\+/g, ' ')
-    .replace(/%0D%0A/g, '</br>');
   const dateTime = new Date().toLocaleString();
-  commentDetails.unshift({
-    name: formatedName,
-    comment: formatedComment,
-    dateTime,
-  });
+  commentDetails.unshift({ name, comment, dateTime });
   writeFileSync(
     'public/data/commentsData.json',
     JSON.stringify(commentDetails),

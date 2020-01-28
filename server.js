@@ -1,11 +1,11 @@
 const net = require('net');
 const { Request } = require('./lib/request');
-const { pickHandler } = require('./lib/handlers');
+const { pickHandler } = require('./app');
 
 const handleRequest = function(requestSocket) {
   const remote = {
     port: requestSocket.remotePort,
-    address: requestSocket.remoteAddress
+    address: requestSocket.remoteAddress,
   };
   console.info(`\n\nRequest received from:`, remote);
   requestSocket.setEncoding('UTF8');
