@@ -1,6 +1,5 @@
-const { writeFileSync, readFileSync, existsSync, statSync } = require('fs');
-const { Response } = require('./lib/response');
-const CONTENT_TYPES = require('./lib/contentTypes.json');
+const { existsSync, statSync, readFileSync, writeFileSync } = require('fs');
+const { parse } = require('querystring');
 
 const fillTemplate = function(fileName, replaceTokens) {
   const path = `./templates/${fileName}`;
@@ -13,9 +12,8 @@ const fillTemplate = function(fileName, replaceTokens) {
   return keys.reduce(replace, content);
 };
 
-const getNotFoundResponse = function() {
-  const res = new Response();
-  res.body = `<html>
+const getNotFoundResponse = function(req, res) {
+  const body = `<html>
     <head>
       <title>NOT FOUND</title>
     </head>
@@ -23,22 +21,18 @@ const getNotFoundResponse = function() {
       <h4>requested resource is not found on the server</h4>
     </body>
   </html>`;
-  return res;
+  res.end(body);
 };
 
-const getFileDataResponse = function(req) {
-  const filePath = `public${req.url}`;
+const getFileDataResponse = function(req, res) {
+  const url = req.url == '/' ? '/index.html' : req.url;
+  const filePath = `public${url}`;
   const isExistingFile = existsSync(filePath) && statSync(filePath).isFile();
-  if (!isExistingFile) return getNotFoundResponse();
-  const extension = filePath.split('.').pop();
-  const res = new Response();
-  res.setStatusCodeOk();
-  res.body = readFileSync(filePath);
-  res.setHeader('Content-Type', CONTENT_TYPES[extension]);
-  return res;
+  if (!isExistingFile) return getNotFoundResponse(req, res);
+  res.end(readFileSync(filePath));
 };
 
-const handleGuestBookGet = function(req) {
+const handleGuestBookGet = function(req, res) {
   const commentDetails = require('./public/data/commentsData.json');
   const commentList = commentDetails.map(commentDetail => {
     const dateTime = commentDetail.dateTime;
@@ -53,40 +47,44 @@ const handleGuestBookGet = function(req) {
   const data = fillTemplate('../public/guestBook.html', {
     tbody: commentList.join(''),
   });
-  const res = new Response();
-  res.setStatusCodeOk();
-  res.body = data;
-  res.setHeader('Content-Type', CONTENT_TYPES['html']);
-  return res;
+  res.end(data);
 };
 
-const handleGuestBookPost = function(req) {
+const handleGuestBookPost = function(req, res) {
   const commentDetails = require('./public/data/commentsData.json');
-  const { name, comment } = req.body;
-  const dateTime = new Date().toLocaleString();
-  commentDetails.unshift({ name, comment, dateTime });
-  writeFileSync(
-    'public/data/commentsData.json',
-    JSON.stringify(commentDetails),
-    'utf8'
-  );
-  const res = new Response();
-  res.redirect('/guestBook.html');
-  return res;
+  req.on('data', data => {
+    req.body = parse(data);
+    console.log(req.body);
+    const { name, comment } = req.body;
+    const dateTime = new Date().toLocaleString();
+    commentDetails.unshift({
+      name,
+      comment,
+      dateTime,
+    });
+    writeFileSync(
+      'public/data/commentsData.json',
+      JSON.stringify(commentDetails),
+      'utf8'
+    );
+    res.writeHead(303, {
+      Location: '/guestBook.html',
+    });
+    res.end();
+  });
 };
 
-const getHandlers = {
+const getHandler = {
   '/guestBook.html': handleGuestBookGet,
   other: getFileDataResponse,
 };
-
-const postHandlers = {
+const postHandler = {
   '/guestBookPost': handleGuestBookPost,
 };
 
 const handlers = {
-  GET: getHandlers,
-  POST: postHandlers,
+  GET: getHandler,
+  POST: postHandler,
 };
 
 const pickHandler = function(req) {
@@ -94,4 +92,4 @@ const pickHandler = function(req) {
   return handlerType[req.url] || handlerType.other || getNotFoundResponse;
 };
 
-exports.pickHandler = pickHandler;
+module.exports = { pickHandler };
