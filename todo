@@ -1,3 +1,5 @@
 --Done-- *create landing page archetecture
 --Done-- create page for other flowers
 --Done-- create guestBook page
+* create app class
+* extract handler and app behaviors

@@ -1,15 +1,8 @@
 const { createServer } = require('http');
-const { parse } = require('querystring');
-const { pickHandler } = require('./app');
-
-const handleRequest = function(req, res) {
-  req.setEncoding('utf8');
-  const handler = pickHandler(req);
-  handler(req, res);
-};
+const { app } = require('./handler');
 
 const server = createServer();
-server.on('request', handleRequest);
+server.on('request', (req, res) => app.serve(req, res));
 server.on('error', err => console.log('error occured in server', err));
 
 server.listen(process.argv[2], () =>
