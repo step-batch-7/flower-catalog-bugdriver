@@ -1,6 +1,7 @@
 const { existsSync, statSync, readFileSync, writeFileSync } = require('fs');
 const { parse } = require('querystring');
 const { App } = require('./app');
+const COMMENT_PATH = 'public/data/commentsData.json';
 
 const fillTemplate = function(fileName, replaceTokens) {
   const path = `./templates/${fileName}`;
@@ -11,6 +12,10 @@ const fillTemplate = function(fileName, replaceTokens) {
     return content.replace(regExp, replaceTokens[key]);
   };
   return keys.reduce(replace, content);
+};
+
+const saveComment = function(commentDetails) {
+  writeFileSync(COMMENT_PATH, JSON.stringify(commentDetails), 'utf8');
 };
 
 const getNotFoundResponse = function(req, res) {
@@ -55,19 +60,9 @@ const handleGuestBookPost = function(req, res) {
   const commentDetails = require('./public/data/commentsData.json');
   const { name, comment } = parse(req.body);
   const dateTime = new Date().toLocaleString();
-  commentDetails.unshift({
-    name,
-    comment,
-    dateTime,
-  });
-  writeFileSync(
-    'public/data/commentsData.json',
-    JSON.stringify(commentDetails),
-    'utf8'
-  );
-  res.writeHead(303, {
-    Location: '/guestBook.html',
-  });
+  commentDetails.unshift({ name, comment, dateTime });
+  saveComment(commentDetails);
+  res.writeHead(303, { Location: '/guestBook.html' });
   res.end();
 };
 
