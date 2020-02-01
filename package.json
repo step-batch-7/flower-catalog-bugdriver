@@ -7,8 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "export DATA_STORE=/Users/step21/rajatwork/JavaScript/flower-catalog-bugdriver/test/testDataFile/commentsData.json;nyc mocha",
+    "start": "export DATA_STORE=/Users/step21/rajatwork/JavaScript/flower-catalog-bugdriver/public/data/commentsData.json;node server.js 4000"
   },
   "repository": {
     "type": "git",

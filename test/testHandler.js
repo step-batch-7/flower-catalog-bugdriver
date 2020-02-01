@@ -1,7 +1,5 @@
 const request = require('supertest');
-const fs = require('fs');
 const { app } = require('../lib/handler');
-const { replace, fake, restore } = require('sinon');
 
 describe('GET', function() {
   it("'/' should give index.html", function(done) {
@@ -34,5 +32,12 @@ describe('GET', function() {
     request((req, res) => app.serve(req, res))
       .get('/badfile')
       .expect(404, done);
+  });
+  it('should redirect guestbook and save comments', function(done) {
+    request((req, res) => app.serve(req, res))
+      .post('/guestBookPost')
+      .send('name=testname&comment=testcomment')
+      .expect(303)
+      .expect('location', '/guestBook.html', done);
   });
 });
