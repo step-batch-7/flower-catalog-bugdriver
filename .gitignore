@@ -1,7 +1,4 @@
-requirements
+ciTool/
+.nyc_output/
 node_modules
-.nyc_output
-coverage
-citool.sh
 test/testDataFile/commentsData.json
-kuchni
